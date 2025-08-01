@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="s3-json-api">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/.serverless/s3-json-api.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

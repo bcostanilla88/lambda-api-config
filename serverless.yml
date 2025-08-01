@@ -1,0 +1,42 @@
+service: s3-json-api
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ap-southeast-1
+  environment:
+    S3_BUCKET: benjo-s3bucket-001
+    S3_KEY: api_config.json
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:ListBucket
+      Resource: arn:aws:s3:::benjo-s3bucket-001/api_config.json
+
+functions:
+  getJson:
+    handler: handler.get_json
+    events:
+      - http:
+          path: get-json
+          method: get
+  postJson:
+    handler: handler.post_json
+    events:
+      - http:
+          path: post-json
+          method: post
+  putJson:
+    handler: handler.put_json
+    events:
+      - http:
+          path: put-json
+          method: put
+  getJsonNoConfig:
+    handler: handler.get_json_no_config
+    events:
+      - http:
+          path: get-json-no-config
+          method: get
