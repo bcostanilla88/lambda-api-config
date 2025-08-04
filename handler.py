@@ -55,15 +55,7 @@ def handle_json_request(event, target_endpoint: str):
         return build_response(500, {"error": str(e)})
 
 
-def get_json(event, context):
-    return handle_json_request(event, "dev/get-json")
-
-
-def post_json(event, context):
-    return handle_json_request(event, "dev/post-json")
-
-def put_json(event, context):
-    return handle_json_request(event, "dev/put-json")
-
-def get_json_no_config(event, context):
-    return handle_json_request(event, "dev/get-json-no-config")
+def get_api_config(event, context):
+    stage = event["requestContext"].get("stage")
+    path = event["path"]
+    return handle_json_request(event, stage + path)

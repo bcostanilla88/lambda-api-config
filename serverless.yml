@@ -16,27 +16,12 @@ provider:
       Resource: arn:aws:s3:::benjo-s3bucket-001/api_config.json
 
 functions:
-  getJson:
-    handler: handler.get_json
+  getApiConfig:
+    handler: handler.get_api_config
     events:
       - http:
-          path: get-json
-          method: get
-  postJson:
-    handler: handler.post_json
-    events:
-      - http:
-          path: post-json
-          method: post
-  putJson:
-    handler: handler.put_json
-    events:
-      - http:
-          path: put-json
-          method: put
-  getJsonNoConfig:
-    handler: handler.get_json_no_config
-    events:
-      - http:
-          path: get-json-no-config
-          method: get
+          path: /{proxy+}
+          method: any
+
+plugins:
+  - serverless-offline
