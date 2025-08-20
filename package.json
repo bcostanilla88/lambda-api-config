@@ -1,0 +1,24 @@
+{
+  "name": "lambda-api-config",
+  "version": "1.0.0",
+  "description": "<!--\r title: 'AWS Python Example'\r description: 'This template demonstrates how to deploy a Python function running on AWS Lambda using the traditional Serverless Framework.'\r layout: Doc\r framework: v2\r platform: AWS\r language: python\r priority: 2\r authorLink: 'https://github.com/serverless'\r authorName: 'Serverless, inc.'\r authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'\r -->",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bcostanilla88/lambda-api-config.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bcostanilla88/lambda-api-config/issues"
+  },
+  "homepage": "https://github.com/bcostanilla88/lambda-api-config#readme",
+  "devDependencies": {
+    "serverless-provisioned-concurrency-autoscaling": "^2.0.1"
+  }
+}

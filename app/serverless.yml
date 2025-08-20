@@ -1,0 +1,39 @@
+service: lambda-api-config
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ap-southeast-1
+  environment:
+    S3_BUCKET: benjo-s3bucket-001
+    S3_KEY: api-config.json
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:ListBucket
+      Resource: arn:aws:s3:::benjo-s3bucket-001/api-config.json
+
+custom:
+  authorizer:
+    type: TOKEN
+    name: custom-authorizer-dev-authorizer
+    arn: arn:aws:lambda:ap-southeast-1:306396860374:function:custom-authorizer-dev-authorizer
+
+functions:
+  retrieve:
+    handler: handler.main_handler
+    events:
+      - http:
+          path: /users
+          method: get
+          authorizer: ${self:custom.authorizer}
+  
+  create:
+    handler: handler.main_handler
+    events:
+      - http:
+          path: /users
+          method: post
+          authorizer: ${self:custom.authorizer}

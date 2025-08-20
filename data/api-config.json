@@ -1,0 +1,14 @@
+[
+    {
+        "endpoint": "dev/users",
+        "method": "GET",
+        "target_uri": "https://68a45218c123272fb9b23ca1.mockapi.io/lambda-api-config/v1/users",
+        "allowed": true
+    },
+    {
+        "endpoint": "dev/users",
+        "method": "POST",
+        "target_uri": "https://68a45218c123272fb9b23ca1.mockapi.io/lambda-api-config/v1/users",
+        "allowed": false
+    }
+]
