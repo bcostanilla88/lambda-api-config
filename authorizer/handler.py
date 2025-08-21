@@ -1,3 +1,8 @@
+from aws_lambda_powertools import Logger
+from aws_lambda_powertools.utilities.typing import LambdaContext
+
+logger = Logger()
+
 def generate_policy(principal_id, effect, resource):
     if effect not in ["Allow", "Deny"]:
         raise ValueError("Effect must be Allow or Deny")
@@ -16,10 +21,17 @@ def generate_policy(principal_id, effect, resource):
         }
     }
 
+@logger.inject_lambda_context
 def authorize(event, context):
+    effect = None
+    method_arn = None
+    logger.debug("Authorizer start")
     token = event.get("authorizationToken")
+    logger.debug(f"token={token}")
     method_arn = event.get("methodArn")
-
+    logger.debug(f"method_arn={method_arn}")
+   
+    
     if not token:
         raise Exception("Unauthorized")
     

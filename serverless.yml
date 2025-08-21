@@ -7,6 +7,7 @@ provider:
   environment:
     S3_BUCKET: benjo-s3bucket-001
     S3_KEY: api-config.json
+    POWERTOOLS_LOG_LEVEL: DEBUG
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -29,17 +30,18 @@ custom:
     type: TOKEN
     name: custom-authorizer-dev-authorizer
     arn: arn:aws:lambda:ap-southeast-1:306396860374:function:custom-authorizer-dev-authorizer
+    resultTtlInSeconds: 0 #disables caching of the policy result
 
 functions:
   retrieve:
     handler: app.handler.main_handler
     events:
       - http:
-          path: /users
+          path: "/admins"
           method: get
           authorizer: ${self:custom.authorizer}
       - http:
-          path: /admins
+          path: "/users"
           method: get
           authorizer: ${self:custom.authorizer}
     layers:
@@ -49,7 +51,7 @@ functions:
     handler: app.handler.main_handler
     events:
       - http:
-          path: /users
+          path: "/users"
           method: post
           authorizer: ${self:custom.authorizer}
     layers:

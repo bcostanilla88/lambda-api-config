@@ -4,6 +4,8 @@ provider:
   name: aws
   runtime: python3.9
   region: ap-southeast-1
+  environment:
+    POWERTOOLS_LOG_LEVEL: DEBUG
 
 plugins:
   - serverless-provisioned-concurrency-autoscaling
@@ -21,3 +23,12 @@ functions:
     handler: authorizer.handler.authorize
     layers:
         - Ref: PythonRequirementsLambdaLayer
+    # provisionedConcurrency: 1
+    # concurrencyAutoscaling:
+    #   enabled: true
+    #   alias: provisioned
+    #   maximum: 10
+    #   minimum: 1
+    #   usage: 0.75
+    #   scaleInCooldown: 0
+    #   scaleOutCooldown: 0

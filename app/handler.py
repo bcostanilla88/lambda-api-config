@@ -5,10 +5,13 @@ import boto3 # type: ignore
 import os
 import urllib.request
 import urllib.error
+from aws_lambda_powertools import Logger
+from aws_lambda_powertools.utilities.typing import LambdaContext
 
 s3 = boto3.client("s3")
 bucket_name = os.environ['S3_BUCKET']
 key = os.environ['S3_KEY']
+logger = Logger()
 
 headers = {
     "Content-Type": "application/json",
@@ -54,7 +57,29 @@ def handle_json_request(event, target_endpoint: str, http_method: str):
         endpoint_obj = load_endpoint_config(target_endpoint, http_method)
         if endpoint_obj:
             if endpoint_obj.allowed:
-                req = urllib.request.Request(endpoint_obj.target_uri, headers=headers, method=endpoint_obj.method)
+                #Get body from request
+                body = event.get("body")
+                if body and isinstance(body, str):
+                    try:
+                        body = json.loads(body)
+                    except json.JSONDecodeError as e:
+                        error = str(e)
+                        logger.error("Invalid JSON body")
+                        return {
+                            "statusCode": 400,
+                            "body": json.dumps({"error": "Invalid JSON in request body"})
+                        }
+                elif not body:
+                    body = {}
+
+                #call external api
+                req = urllib.request.Request(
+                    endpoint_obj.target_uri,
+                    headers=headers,
+                    method=endpoint_obj.method,
+                    data=json.dumps(body).encode("utf-8") if endpoint_obj.method != "GET" else None,
+                )
+
                 try:
                     with urllib.request.urlopen(req) as response:
                         status_code = response.getcode()
@@ -81,19 +106,15 @@ def handle_json_request(event, target_endpoint: str, http_method: str):
                         "statusCode": 500,
                         "body": f"Unexpected error: {str(e)}"
                     }
-                # return build_response(200, {
-                #     "endpoint": endpoint_obj.endpoint,
-                #     "method": endpoint_obj.method,
-                #     "target_uri": endpoint_obj.target_uri
-                # })
             else:
                 return build_response(403, {"error": "Access not allowed"})
         return build_response(404, {"error": "API Config not found"})
     except Exception as e:
         return build_response(500, {"error": str(e)})
 
-
+@logger.inject_lambda_context
 def main_handler(event, context):
+    logger.debug("Lambda app start")
     stage = event["requestContext"].get("stage")
     path = event["path"]
     http_method = event.get("httpMethod")
