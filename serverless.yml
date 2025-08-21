@@ -15,7 +15,16 @@ provider:
         - s3:ListBucket
       Resource: arn:aws:s3:::benjo-s3bucket-001/api-config.json
 
+plugins:
+    - serverless-python-requirements
+
 custom:
+  pythonRequirements:
+    dockerizePip: false        # use docker to build deps for correct OS/arch
+    layer: true              # or true if you want dependencies in a Lambda layer
+    slim: true                # reduce package size
+    strip: false
+
   authorizer:
     type: TOKEN
     name: custom-authorizer-dev-authorizer
@@ -23,17 +32,25 @@ custom:
 
 functions:
   retrieve:
-    handler: handler.main_handler
+    handler: app.handler.main_handler
     events:
       - http:
           path: /users
           method: get
           authorizer: ${self:custom.authorizer}
+      - http:
+          path: /admins
+          method: get
+          authorizer: ${self:custom.authorizer}
+    layers:
+        - Ref: PythonRequirementsLambdaLayer
   
   create:
-    handler: handler.main_handler
+    handler: app.handler.main_handler
     events:
       - http:
           path: /users
           method: post
           authorizer: ${self:custom.authorizer}
+    layers:
+        - Ref: PythonRequirementsLambdaLayer

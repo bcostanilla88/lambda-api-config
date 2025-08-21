@@ -1,0 +1,23 @@
+service: custom-authorizer
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ap-southeast-1
+
+plugins:
+  - serverless-provisioned-concurrency-autoscaling
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: false        # use docker to build deps for correct OS/arch
+    layer: true              # or true if you want dependencies in a Lambda layer
+    slim: true                # reduce package size
+    strip: false
+
+functions:
+  authorizer:
+    handler: authorizer.handler.authorize
+    layers:
+        - Ref: PythonRequirementsLambdaLayer

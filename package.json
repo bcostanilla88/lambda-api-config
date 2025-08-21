@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/bcostanilla88/lambda-api-config#readme",
   "devDependencies": {
-    "serverless-provisioned-concurrency-autoscaling": "^2.0.1"
+    "serverless-provisioned-concurrency-autoscaling": "^2.0.1",
+    "serverless-python-requirements": "^6.1.2"
   }
 }
