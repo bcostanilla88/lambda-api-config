@@ -6,10 +6,13 @@ provider:
   region: ap-southeast-1
   environment:
     POWERTOOLS_LOG_LEVEL: DEBUG
+  iam:
+    role: arn:aws:iam::306396860374:role/lambda-api-config-dev-lambdaRole
 
 plugins:
   - serverless-provisioned-concurrency-autoscaling
   - serverless-python-requirements
+  - serverless-ssm-fetch
 
 custom:
   pythonRequirements:
@@ -17,12 +20,16 @@ custom:
     layer: true              # or true if you want dependencies in a Lambda layer
     slim: true                # reduce package size
     strip: false
+  serverlessSsmFetch:
+    ALLOWED_CNAMES: "/lambda-api-config/allowed-cnames~true"
 
 functions:
   authorizer:
     handler: authorizer.handler.authorize
     layers:
-        - Ref: PythonRequirementsLambdaLayer
+      - Ref: PythonRequirementsLambdaLayer
+    ssmToEnvironment:
+      - ALLOWED_CNAMES
     # provisionedConcurrency: 1
     # concurrencyAutoscaling:
     #   enabled: true

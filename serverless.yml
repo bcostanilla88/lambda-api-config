@@ -8,13 +8,8 @@ provider:
     S3_BUCKET: benjo-s3bucket-001
     S3_KEY: api-config.json
     POWERTOOLS_LOG_LEVEL: DEBUG
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - s3:GetObject
-        - s3:PutObject
-        - s3:ListBucket
-      Resource: arn:aws:s3:::benjo-s3bucket-001/api-config.json
+  iam:
+    role: arn:aws:iam::306396860374:role/lambda-api-config-dev-lambdaRole
 
 plugins:
     - serverless-python-requirements
@@ -45,7 +40,7 @@ functions:
           method: get
           authorizer: ${self:custom.authorizer}
     layers:
-        - Ref: PythonRequirementsLambdaLayer
+      - Ref: PythonRequirementsLambdaLayer
   
   create:
     handler: app.handler.main_handler
