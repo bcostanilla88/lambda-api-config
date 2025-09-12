@@ -10,7 +10,6 @@ provider:
     role: arn:aws:iam::306396860374:role/lambda-api-config-dev-lambdaRole
 
 plugins:
-  - serverless-provisioned-concurrency-autoscaling
   - serverless-python-requirements
   - serverless-ssm-fetch
 
@@ -26,10 +25,6 @@ custom:
 functions:
   authorizer:
     handler: authorizer.handler.authorize
-    layers:
-      - Ref: PythonRequirementsLambdaLayer
-    ssmToEnvironment:
-      - ALLOWED_CNAMES
     # provisionedConcurrency: 1
     # concurrencyAutoscaling:
     #   enabled: true
@@ -39,3 +34,7 @@ functions:
     #   usage: 0.75
     #   scaleInCooldown: 0
     #   scaleOutCooldown: 0
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
+    ssmToEnvironment:
+      - ALLOWED_CNAMES

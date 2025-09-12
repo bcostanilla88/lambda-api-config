@@ -12,6 +12,7 @@ provider:
     role: arn:aws:iam::306396860374:role/lambda-api-config-dev-lambdaRole
 
 plugins:
+    - serverless-provisioned-concurrency-autoscaling
     - serverless-python-requirements
 
 custom:
@@ -30,6 +31,15 @@ custom:
 functions:
   retrieve:
     handler: app.handler.main_handler
+    # provisionedConcurrency: 2
+    # concurrencyAutoscaling:
+    #   enabled: true
+    #   alias: provisioned
+    #   maximum: 10
+    #   minimum: 2
+    #   usage: 0.75
+    #   scaleInCooldown: 0
+    #   scaleOutCooldown: 0
     events:
       - http:
           path: "/admins"
@@ -48,6 +58,15 @@ functions:
       - http:
           path: "/users"
           method: post
+          authorizer: ${self:custom.authorizer}
+    layers:
+        - Ref: PythonRequirementsLambdaLayer
+  update:
+    handler: app.handler.main_handler
+    events:
+      - http:
+          path: "/users"
+          method: put
           authorizer: ${self:custom.authorizer}
     layers:
         - Ref: PythonRequirementsLambdaLayer
