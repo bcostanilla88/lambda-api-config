@@ -1,4 +1,4 @@
-service: custom-authorizer
+service: poc-apigw-vpc-auth
 
 provider:
   name: aws

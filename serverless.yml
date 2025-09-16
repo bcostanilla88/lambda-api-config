@@ -1,18 +1,28 @@
-service: lambda-api-config
+service: poc-apigw-vpc-app
 
 provider:
   name: aws
   runtime: python3.9
   region: ap-southeast-1
   environment:
-    S3_BUCKET: benjo-s3bucket-001
-    S3_KEY: api-config.json
     POWERTOOLS_LOG_LEVEL: DEBUG
   iam:
     role: arn:aws:iam::306396860374:role/lambda-api-config-dev-lambdaRole
+  # apiGateway:
+  #   metrics: true
+  # tracing:
+  #   apiGateway: true # Enable AWS X-Ray tracing for API Gateway
+  #   lambda: true # Enable AWS X-Ray tracing for Lambda
+  # logs:
+  #   restApi:
+  #     accessLogging: true
+  #     executionLogging: true # avoid full request/response logs
+  #     level: ERROR
+  #     fullExecutionData: false # avoid logging request bodies
+  #     format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","user":"$context.identity.user","userAgent":"$context.identity.userAgent","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":"$context.status","error":"$context.error.message","latency":"$context.responseLatency","responseLength":"$context.responseLength","authorizeResultStatus":"$context.authorize.status","authorizeResultError":"$context.authorize.error","authorizeLatency":"$context.authorize.latency","authorizerRequestId":"$context.authorizer.requestId","authorizerServiceStatus":"$context.authorizer.status","authorizerServiceError":"$context.authorizer.error","authorizerLatency":"$context.authorizer.latency","integrationRequestId":"$context.integration.requestId","integrationResponseStatus":"$context.integration.status","integrationResponseError":"$context.integration.error","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus","xrayTraceId":"$context.xrayTraceId"}'
+  #     roleManagedExternally: true
 
 plugins:
-    - serverless-provisioned-concurrency-autoscaling
     - serverless-python-requirements
 
 custom:
@@ -24,49 +34,40 @@ custom:
 
   authorizer:
     type: TOKEN
-    name: custom-authorizer-dev-authorizer
-    arn: arn:aws:lambda:ap-southeast-1:306396860374:function:custom-authorizer-dev-authorizer
+    name: poc-apigw-vpc-auth-dev-authorizer
+    arn: arn:aws:lambda:ap-southeast-1:306396860374:function:poc-apigw-vpc-auth-dev-authorizer
     resultTtlInSeconds: 0 #disables caching of the policy result
 
+resources:
+  Resources:
+    MyVpcLink:
+      Type: AWS::ApiGateway::VpcLink
+      Properties:
+        Name: my-vpc-link
+        TargetArns:
+          - arn:aws:elasticloadbalancing:ap-southeast-1:306396860374:loadbalancer/net/poc-nlb/77c81596e24caffc
+
 functions:
-  retrieve:
-    handler: app.handler.main_handler
-    # provisionedConcurrency: 2
-    # concurrencyAutoscaling:
-    #   enabled: true
-    #   alias: provisioned
-    #   maximum: 10
-    #   minimum: 2
-    #   usage: 0.75
-    #   scaleInCooldown: 0
-    #   scaleOutCooldown: 0
-    events:
-      - http:
-          path: "/admins"
-          method: get
-          authorizer: ${self:custom.authorizer}
-      - http:
-          path: "/users"
-          method: get
-          authorizer: ${self:custom.authorizer}
-    layers:
-      - Ref: PythonRequirementsLambdaLayer
-  
   create:
-    handler: app.handler.main_handler
+    # handler will not be invoked
+    handler: app.handler.dummy_handler
     events:
       - http:
           path: "/users"
           method: post
+          integration: http-proxy
+          connectionType: vpc-link
+          connectionId:
+            Ref: MyVpcLink
+          cors: true
+          request:
+            uri: https://68a45218c123272fb9b23ca1.mockapi.io/lambda-api-config/v1/users
+            method: post
+            parameters:
+              headers:
+                Authorization: "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQxx" # Example: Static Authorization header
+                X-Request-ID: "$context.requestId" # Example: Dynamic header from API Gateway context
           authorizer: ${self:custom.authorizer}
-    layers:
-        - Ref: PythonRequirementsLambdaLayer
-  update:
-    handler: app.handler.main_handler
-    events:
-      - http:
-          path: "/users"
-          method: put
-          authorizer: ${self:custom.authorizer}
+      
     layers:
         - Ref: PythonRequirementsLambdaLayer

@@ -18,5 +18,5 @@ var/
 
 # Serverless directories
 .serverless
-
+.vscode
 node_modules/
